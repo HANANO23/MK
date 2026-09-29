@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매경테스트 기출문제 반복학습 CBT</title>
+    <style>
+        :root {
+            --bg-color: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --text-main: #0F172A;
+            --text-sub: #475569;
+            --border: #E2E8F0;
+            --correct-bg: #DCFCE7;
+            --correct-border: #22C55E;
+            --correct-text: #15803D;
+            --wrong-bg: #FEE2E2;
+            --wrong-border: #EF4444;
+            --wrong-text: #B91C1C;
+            --exp-bg: #F0F9FF;
+            --exp-border: #BAE6FD;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        /* Header & Sticky Controls */
+        header {
+            background: #1E293B;
+            color: white;
+            padding: 20px 16px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: #94A3B8;
+        }
+
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .category-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: none;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            flex: 0 0 auto;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: #F1F5F9;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .tool-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* Question Cards */
+        .container {
+            max-width: 768px;
+            margin: 16px auto;
+            padding: 0 12px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            background: #E0F2FE;
+            color: #0369A1;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .q-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-sub);
+        }
+
+        .q-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            word-break: keep-all;
+        }
+
+        .passage {
+            background: #F8FAFC;
+            border-left: 3px solid #94A3B8;
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            color: #334155;
+            margin-bottom: 12px;
+            border-radius: 0 6px 6px 0;
+            white-space: pre-line;
+        }
+
+        /* Options */
+        .options-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .option-item {
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            word-break: keep-all;
+        }
+
+        .option-item:hover {
+            background: #F1F5F9;
+        }
+
+        .option-item.selected-correct {
+            background: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: var(--correct-text) !important;
+            font-weight: 600;
+        }
+
+        .option-item.selected-wrong {
+            background: var(--wrong-bg) !important;
+            border-color: var(--wrong-border) !important;
+            color: var(--wrong-text) !important;
+        }
+
+        /* Action & Explanation */
+        .btn-toggle-exp {
+            width: 100%;
+            padding: 8px;
+            background: #F1F5F9;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+        }
+
+        .explanation-box {
+            display: none;
+            margin-top: 12px;
+            padding: 14px;
+            background: var(--exp-bg);
+            border: 1px solid var(--exp-border);
+            border-radius: 8px;
+            font-size: 0.88rem;
+        }
+
+        .explanation-box.show {
+            display: block;
+        }
+
+        .exp-answer {
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--exp-border);
+        }
+
+        .exp-item {
+            margin-bottom: 6px;
+            word-break: keep-all;
+        }
+
+        .exp-item strong {
+            color: var(--text-main);
+        }
+
+        /* Progress Float */
+        .stats-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1E293B;
+            color: white;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>매경테스트 단기합격 CBT</h1>
+        <p>영역별 기출 핵심 정리 & 반복 문제풀이</p>
+    </header>
+
+    <div class="sticky-nav">
+        <div class="category-scroll">
+            <button class="cat-btn active" onclick="filterCategory('전체', this)">전체</button>
+            <button class="cat-btn" onclick="filterCategory('마케팅', this)">마케팅</button>
+            <button class="cat-btn" onclick="filterCategory('경영전략·국제경영', this)">경영전략·국제경영</button>
+            <button class="cat-btn" onclick="filterCategory('인사·조직', this)">인사·조직</button>
+            <button class="cat-btn" onclick="filterCategory('회계', this)">회계</button>
+            <button class="cat-btn" onclick="filterCategory('재무·금융', this)">재무·금융</button>
+        </div>
+        <div class="toolbar">
+            <input type="text" class="search-input" id="search" placeholder="문제 키워드 검색..." onkeyup="searchQuestions()">
+            <button class="tool-btn" onclick="toggleAllExplanations()">해설 전체 열기/접기</button>
+        </div>
+    </div>
+
+    <div class="container" id="quiz-container"></div>
+
+    <div class="stats-bar">
+        <span id="solved-count">풀이한 문제: 0 / 0</span>
+        <span id="score-count">정답률: 0%</span>
+    </div>
+
+    <script>
+        const quizData = [
+            // 마케팅
+            {
+                id: 1, category: "마케팅", qNo: "문제 01", title: "촉진 수단",
+                passage: "",
+                question: "다음 중 기업이 고객, 정부, 시민단체 등 여러 집단과 언론 보도의 커뮤니케이션 활동으로 호의적인 관계를 유지하는 촉진 수단은?",
+                options: ["① PR", "② 광고", "③ 인적 판매", "④ 판매 촉진", "⑤ 다이렉트 마케팅"],
+                answerIdx: 0,
+                answerText: "① PR",
+                exp: [
+                    "① [O] PR(Public Relations)은 기업이 다양한 이해관계자 및 언론과의 커뮤니케이션을 통해 호의적인 이미지를 구축하고 관계를 유지하는 활동입니다.",
+                    "② [X] 광고는 기업이 타깃 소비자에게 정보를 제공 혹은 설득하는 유료 커뮤니케이션입니다.",
+                    "③ [X] 인적 판매는 기업이 훈련된 영업사원을 통해 판매를 직접 촉진하는 활동입니다.",
+                    "④ [X] 판매 촉진은 단기적인 구매를 유도하기 위해 제공하는 Incentive 활동입니다.",
+                    "⑤ [X] 다이렉트 마케팅은 중간상 없이 소비자와 직접 커뮤니케이션하는 활동입니다."
+                ]
+            },
+            {
+                id: 10, category: "마케팅", qNo: "문제 10", title: "가격 전략",
+                passage: "",
+                question: "다음 중 소비자에게 제품의 우수성을 전달하기 위해 높은 가격을 책정하는 것으로 주로 사치품과 고가 제품에 적용되는 가격전략은?",
+                options: ["① 단수가격", "② 명성과격", "③ 관습가격", "④ 유보가격", "⑤ 준거가격"],
+                answerIdx: 1,
+                answerText: "② 명성과격",
+                exp: [
+                    "② [O] 명성과격은 고가격 책정을 통해 품질의 우수성이나 신분을 상징하여 구매욕구를 자극하는 전략입니다.",
+                    "① [X] 단수가격은 9,900원과 같이 단수를 사용하여 저렴한 느낌을 주는 전략입니다.",
+                    "③ [X] 관습가격은 오랜 기간 관습적으로 인정받아 온 가격 수준으로 결정하는 전략입니다.",
+                    "④ [X] 유보가격은 소비자가 특정 상품에 대해 지불할 용의가 있는 최댓값 가격입니다.",
+                    "⑤ [X] 준거가격은 소비자가 가격을 판단할 때 기준(비교)으로 사용하는 가격입니다."
+                ]
+            },
+            {
+                id: 11, category: "마케팅", qNo: "문제 11", title: "시장세분화 변수",
+                passage: "",
+                question: "기업은 다양한 시장세분화 변수를 사용해 시장을 나눈다. 다음 중 행동적 시장세분화 변수는?",
+                options: ["① 소득", "② 성별", "③ 충성도", "④ 인구밀도", "⑤ 라이프스타일"],
+                answerIdx: 2,
+                answerText: "③ 충성도",
+                exp: [
+                    "③ [O] 충성도, 사용량, 추구 편익 등은 소비자의 실제 구매 행동 특성을 나누는 행동적 변수입니다.",
+                    "① [X] 소득은 인구통계적 변수에 해당합니다.",
+                    "② [X] 성별은 인구통계적 변수에 해당합니다.",
+                    "④ [X] 인구밀도는 지리적 변수에 해당합니다.",
+                    "⑤ [X] 라이프스타일은 심리분석적 변수에 해당합니다."
+                ]
+            },
+            {
+                id: 13, category: "마케팅", qNo: "문제 13", title: "포지셔닝",
+                passage: "",
+                question: "다음 중 '표적시장 소비자의 인식 속에 자사 제품이 경쟁제품에 비해 유리한 위치를 갖게 하는 과정'을 의미하는 마케팅 용어는?",
+                options: ["① 타기팅(Targeting)", "② 포지셔닝(Positioning)", "③ 시장세분화(Segmentation)", "④ 크로스 셀링(Cross Selling)", "⑤ 마케팅믹스(Marketing Mix)"],
+                answerIdx: 1,
+                answerText: "② 포지셔닝(Positioning)",
+                exp: [
+                    "② [O] 포지셔닝은 소비자의 마음속에 경쟁 제품 대비 차별화된 우위 위치를 각인시키는 전략입니다.",
+                    "① [X] 타기팅은 진입할 가장 매력적인 목표 시장을 선정하는 과정입니다.",
+                    "③ [X] 시장세분화는 전체 시장을 유사한 욕구를 가진 그룹으로 나누는 과정입니다.",
+                    "④ [X] 크로스 셀링은 기존 고객에게 연관 추가 상품을 판매하는 교차판매 전략입니다.",
+                    "⑤ [X] 마케팅믹스는 목표 달성을 위해 4P(제품, 가격, 유통, 촉진)를 조합하는 활동입니다."
+                ]
+            },
+            {
+                id: 18, category: "마케팅", qNo: "문제 18", title: "숏폼 콘텐츠 분석",
+                passage: "[지문] 2021년 숏폼 콘텐츠 조사 결과: 시청 경험자 76%, 숏폼 시청 후 긴 동영상 이용 감소 31.8%, '짧은 시간에 핵심 파악 가능(85.3%)', '자극적 콘텐츠 증가 우려(77.8%)'",
+                question: "앞의 자료에 근거해 콘텐츠 플랫폼 시장에 대한 올바른 추론으로 가장 거리가 먼 것은?",
+                options: [
+                    "① 짧은 시간에 자극적인 콘텐츠를 소비하려는 시청자가 증가할 것이다.",
+                    "② 콘텐츠 속 주인공의 긴 서사(narrative)에 근거한 스토리텔링에 대한 수요가 증가할 것이다.",
+                    "③ 동영상 시청에 대한 시공간 제약이 줄어들면서 짧은 영상 콘텐츠에 대한 수요가 증가했다.",
+                    "④ 향후 숏폼 콘텐츠 선호도가 커질수록 긴 동영상 콘텐츠에 대한 몰입도는 낮아질 것이다.",
+                    "⑤ 콘텐츠 제작 업체들은 핵심 메시지를 짧고 간결하게 전달하는 데 집중하게 될 것이다."
+                ],
+                answerIdx: 1,
+                answerText: "② 스토리텔링 수요 증가",
+                exp: [
+                    "② [X] 숏폼 콘텐츠 소비 확산에 따라 긴 서사의 스토리텔링 수요는 감소하며, 핵심 위주의 축약형 콘텐츠 선호가 증가합니다.",
+                    "① [O] 핵심 소비 및 자극적 콘텐츠 증가 우려 항목을 바탕으로 한 올바른 추론입니다.",
+                    "③ [O] 모바일 환경 확산에 따른 짧은 영상 수요 증가는 타당합니다.",
+                    "④ [O] 숏폼 시청 후 긴 동영상 이용 빈도 감소 결과에 근거합니다.",
+                    "⑤ [O] 짧고 간결한 메시지 위주의 전략 전환이 일어납니다."
+                ]
+            },
+            {
+                id: 19, category: "마케팅", qNo: "문제 19", title: "숏폼 콘텐츠 제작 전략",
+                passage: "",
+                question: "다음 중 숏폼 콘텐츠 흐름에 맞춰 콘텐츠 제작자들이 채택할 수 있는 전략으로 가장 적절하지 않은 것은?",
+                options: [
+                    "① 5분 이내에 미션 달성 여부를 파악할 수 있는 보드게임 콘텐츠",
+                    "② 러닝타임 2시간 이상의 영화를 10분 이내로 축약한 영화 리뷰 콘텐츠",
+                    "③ 대중교통 이용 직장인을 위한 인문학 도서 요약 오디오북",
+                    "④ 2분 이내의 지원자 단독 댄스 영상으로 오디션을 치르는 프로그램",
+                    "⑤ 조선시대 역사를 연도별로 25부에 나누어 소개한 장편 동영상 콘텐츠"
+                ],
+                answerIdx: 4,
+                answerText: "⑤ 25부작 역대 연도별 소개 콘텐츠",
+                exp: [
+                    "⑤ [X] 25부작의 긴 연대기적 호흡은 짧고 간결한 숏폼 트렌드에 부합하지 않습니다.",
+                    "① [O] 5분 이내 짧은 미션 수행 영상으로 숏폼에 적합합니다.",
+                    "② [O] 긴 영상을 10분 이내로 핵심 요약한 전략입니다.",
+                    "③ [O] 출퇴근 자투리 시간에 맞춘 간결 요약형 전략입니다.",
+                    "④ [O] 2분 이내 단시간 오디션 제작 방식입니다."
+                ]
+            },
+
+            // 경영전략 · 국제경영
+            {
+                id: 2, category: "경영전략·국제경영", qNo: "문제 02", title: "BCG 매트릭스",
+                passage: "",
+                question: "다음 중 BCG 매트릭스에서 시장성장률은 낮으나 상대적 시장점유율은 높아 지속적으로 이윤을 창출하는 사업 부문은?",
+                options: ["① 개(Dog)", "② 스타(Star)", "③ 캐시카우(Cash Cow)", "④ 야생고양이(Wild Cat)", "⑤ 물음표(Question Mark)"],
+                answerIdx: 2,
+                answerText: "③ 캐시카우(Cash Cow)",
+                exp: [
+                    "③ [O] 캐시카우는 성장률이 낮아 신규 투자가 적으나 점유율이 높아 안정적인 현금을 창출합니다.",
+                    "① [X] 개(Dog)는 성장률과 점유율이 모두 낮아 철수를 고려합니다.",
+                    "② [X] 스타(Star)는 성장률과 점유율이 모두 높아 많은 투자와 수익이 공존합니다.",
+                    "④, ⑤ [X] 야생고양이/물음표는 성장률은 높으나 점유율이 낮아 육성 여부를 고민하는 단계입니다."
+                ]
+            },
+            {
+                id: 3, category: "경영전략·국제경영", qNo: "문제 03", title: "마이클 포터 본원적 전략",
+                passage: "",
+                question: "다음 중 기업이 고객에게 독특한 가치를 제공하여 높은 가격 프리미엄을 얻는 마이클 포터의 본원적 전략은?",
+                options: ["① 모방 전략", "② 수확 전략", "③ 유지 전략", "④ 차별화 전략", "⑤ 원가우위 전략"],
+                answerIdx: 3,
+                answerText: "④ 차별화 전략",
+                exp: [
+                    "④ [O] 차별화 전략은 독특한 가치를 바탕으로 고객이 지불 용의가 높은 가격 프리미엄을 적용합니다.",
+                    "① [X] 모방 전략은 선발 기업의 전략을 추종하는 전략입니다.",
+                    "② [X] 수확 전략은 자원 투입을 줄이고 이익만 회수하는 전략입니다.",
+                    "③ [X] 유지 전략은 현상을 유지하며 관망하는 전략입니다.",
+                    "⑤ [X] 원가우위 전략은 전체적인 원가 절감을 통해 낮은 가격으로 경쟁합니다."
+                ]
+            },
+            {
+                id: 4, category: "경영전략·국제경영", qNo: "문제 04", title: "해외시장 진출 방식",
+                passage: "",
+                question: "다음 중 자원 투입의 위험 정도가 가장 낮으며 통제의 필요성도 가장 낮은 해외시장 진출방법은?",
+                options: ["① 간접 수출", "② 라이선싱", "③ 합작 투자", "④ 직접 투자", "⑤ 프랜차이징"],
+                answerIdx: 0,
+                answerText: "① 간접 수출",
+                exp: [
+                    "① [O] 간접 수출은 국내 중개업체를 통해 유통하므로 기업의 자원 투입 위험과 통제 필요성이 가장 낮습니다.",
+                    "② [X] 라이선싱은 특허/노하우 대여 후 로열티를 받습니다.",
+                    "③ [X] 합작 투자는 현지 기업과 자본을 공동 출자합니다.",
+                    "④ [X] 직접 투자는 자회사를 단독 설립하여 위험과 통제력이 가장 높습니다.",
+                    "⑤ [X] 프랜차이징은 운영 시스템 전체를 부여하는 방식입니다."
+                ]
+            },
+            {
+                id: 41, category: "경영전략·국제경영", qNo: "예제 04-1", title: "5 Forces Model (공급자 교섭력)",
+                passage: "",
+                question: "산업구조분석모형(5 Forces Model)에서 공급자의 교섭력이 강한 상황과 가장 거리가 먼 것은?",
+                options: [
+                    "① 공급자의 수가 적은 경우",
+                    "② 구매자의 전환비용이 낮은 경우",
+                    "③ 공급자의 전방통합 능력이 높은 경우",
+                    "④ 공급하는 제품의 차별화 정도가 높은 경우",
+                    "⑤ 구매자가 공급자의 비용구조 정보를 모르는 경우"
+                ],
+                answerIdx: 1,
+                answerText: "② 구매자의 전환비용이 낮은 경우",
+                exp: [
+                    "② [X] 구매자의 전환비용이 낮으면 타 공급자로 쉽게 바꿀 수 있으므로 '구매자의 교섭력'이 강해집니다.",
+                    "① [O] 공급자가 적으면 구매자의 선택권이 줄어 공급자가 유리해집니다.",
+                    "③ [O] 공급자가 직접 하류 산업으로 진출할 능력이 있으면 교섭력이 높아집니다.",
+                    "④ [O] 대체재를 찾기 힘들어 공급자의 교섭력이 강화됩니다.",
+                    "⑤ [O] 정보 불균형으로 공급자가 가격 협상 시 유리해집니다."
+                ]
+            },
+
+            // 인사 · 조직관리
+            {
+                id: 6, category: "인사·조직", qNo: "문제 06", title: "브룸의 기대이론",
+                passage: "",
+                question: "브룸(Vroom)의 기대이론에서 '성과가 높아지면 보상도 개선될 것이라고 믿는 가정'에 해당하는 개념은?",
+                options: ["① 유의성(Valence)", "② 타당성(Validity)", "③ 공정성(Fairness)", "④ 효과성(Effectiveness)", "⑤ 수단성(Instrumentality)"],
+                answerIdx: 4,
+                answerText: "⑤ 수단성(Instrumentality)",
+                exp: [
+                    "⑤ [O] 수단성은 높은 성과 달성이 원하는 보상으로 이어질 것이라는 믿음/개연성입니다.",
+                    "① [X] 유의성은 제시된 보상에 대해 개인이 느끼는 주관적 매력도입니다.",
+                    "②, ③, ④ [X] 브룸 기대이론의 3대 핵심 요소(기대, 수단성, 유의성)에 포함되지 않습니다."
+                ]
+            },
+            {
+                id: 7, category: "인사·조직", qNo: "문제 07", title: "기계적 vs 유기적 조직",
+                passage: "",
+                question: "유기적 조직에 비해 기계적 조직이 가진 특성으로 가장 거리가 먼 것은?",
+                options: ["① 업무의 공식화", "② 다단계 보고체계", "③ 수평적 소통체계", "④ 높은 직무 전문화", "⑤ 프로세스의 표준화"],
+                answerIdx: 2,
+                answerText: "③ 수평적 소통체계",
+                exp: [
+                    "③ [X] 수평적 소통체계는 환경 변화에 유연하게 대응하는 '유기적 조직'의 특징입니다.",
+                    "① [O] 업무 규정 및 명확한 공식화는 기계적 조직의 특징입니다.",
+                    "② [O] 좁은 통제 범위 및 수직적 다단계 보고는 기계적 조직의 특징입니다.",
+                    "④ [O] 세분화된 높은 직무 전문성은 기계적 조직의 특징입니다.",
+                    "⑤ [O] 프로세스 표준화는 기계적 조직의 특징입니다."
+                ]
+            },
+            {
+                id: 31, category: "인사·조직", qNo: "문제 31", title: "인사평가 오류",
+                passage: "",
+                question: "인사평가 시 평가자가 피평가자들을 평가 척도의 중간 범위로 평가하는 경향은?",
+                options: ["① 대비오류", "② 상동오류", "③ 관대화 경향", "④ 유사성오류", "⑤ 중심화 경향"],
+                answerIdx: 4,
+                answerText: "⑤ 중심화 경향",
+                exp: [
+                    "⑤ [O] 중심화 경향은 피평가자들을 무난하게 중간 점수로 몰아 주는 평가 오류입니다.",
+                    "① [X] 대비오류는 객관적 기준이 아닌 다른 대상을 기준으로 비교 평가하는 오류입니다.",
+                    "② [X] 상동오류는 고정관념이나 선입견에 기반하여 평가하는 오류입니다.",
+                    "③ [X] 관대화 경향은 실적보다 전반적으로 높은 점수를 주는 오류입니다.",
+                    "④ [X] 유사성오류는 자신과 비슷한 사람에게 호의적으로 평가하는 오류입니다."
+                ]
+            },
+
+            // 회계
+            {
+                id: 5, category: "회계", qNo: "문제 05", title: "재무제표의 개념",
+                passage: "",
+                question: "특정 시점의 기업 자산, 부채, 자본을 나타내며 차변합계와 대변합계가 항상 일치하는 재무제표는?",
+                options: ["① 주석", "② 자본변동표", "③ 현금흐름표", "④ 재무상태표", "⑤ 손익계산서"],
+                answerIdx: 3,
+                answerText: "④ 재무상태표",
+                exp: [
+                    "④ [O] 특정 시점의 재무 상태(자산=부채+자본)를 나타내는 재무제표는 재무상태표입니다.",
+                    "① [X] 주석은 재무제표 보완 설명을 수록합니다.",
+                    "② [X] 자본변동표는 일정 기간 동안 자본 항목의 변동을 나타냅니다.",
+                    "③ [X] 현금흐름표는 일정 기간 현금 유출입을 보여줍니다.",
+                    "⑤ [X] 손익계산서는 일정 기간 동안의 경영 성과(수익/비용)를 나타냅니다."
+                ]
+            },
+            {
+                id: 8, category: "회계", qNo: "문제 08", title: "재무상태표 자산 항목",
+                passage: "",
+                question: "다음 중 재무상태표의 자산에 해당하는 항목은?",
+                options: ["① 선급금", "② 자본금", "③ 매입채무", "④ 미지급금", "⑤ 이익잉여금"],
+                answerIdx: 0,
+                answerText: "① 선급금",
+                exp: [
+                    "① [O] 선급금은 재화 수령 전 선지급한 금액으로, 향후 물품을 받을 권리이므로 자산입니다.",
+                    "② [X] 자본금은 자본 항목입니다.",
+                    "③ [X] 매입채무는 외상으로 사고 남은 부채입니다.",
+                    "④ [X] 미지급금은 지불 의무가 있는 부채입니다.",
+                    "⑤ [X] 이익잉여금은 자본 항목입니다."
+                ]
+            },
+            {
+                id: 17, category: "회계", qNo: "문제 17", title: "재무비율 계산",
+                passage: "[데이터] A사 (발행주식수 100주)\n- 20x1년: 매출 2,000 / 매출총이익 1,500 / 영업이익 1,000 / 이자비용 100 / 당기순이익 400\n- 20x2년: 매출 1,500 / 매출총이익 900 / 영업이익 750 / 이자비용 75 / 당기순이익 300",
+                question: "A사의 재무비율 분석 중 올바르지 않은 것은?",
+                options: [
+                    "① 순이익률: 20x1년 20%, 20x2년 20%",
+                    "② 주당순이익: 20x1년 4원, 20x2년 3원",
+                    "③ 영업이익률: 20x1년 50%, 20x2년 50%",
+                    "④ 이자보상배율: 20x1년 10배, 20x2년 10배",
+                    "⑤ 매출총이익률: 20x1년 25%, 20x2년 40%"
+                ],
+                answerIdx: 4,
+                answerText: "⑤ 매출총이익률 오류",
+                exp: [
+                    "⑤ [X] 매출총이익률(=매출총이익/매출)은 20x1년 1,500/2,000 = 75%, 20x2년 900/1,500 = 60% 입니다.",
+                    "① [O] 순이익률(=순이익/매출): 20x1년 400/2,000 = 20%, 20x2년 300/1,500 = 20%.",
+                    "② [O] EPS(=순이익/주식수): 20x1년 400/100 = 4원, 20x2년 300/100 = 3원.",
+                    "③ [O] 영업이익률(=영업이익/매출): 20x1년 1,000/2,000 = 50%, 20x2년 750/1,500 = 50%.",
+                    "④ [O] 이자보상배율(=영업이익/이자비용): 1,000/100 = 10배, 750/75 = 10배."
+                ]
+            },
+
+            // 재무관리 & 금융
+            {
+                id: 12, category: "재무·금융", qNo: "문제 12", title: "기업 수익성 지표",
+                passage: "",
+                question: "다음 중 기업의 수익성을 평가하는 데 활용되는 재무비율은?",
+                options: ["① 부채비율", "② 당좌비율", "③ 총자산회전율", "④ 재고자산회전율", "⑤ 자기자본이익률"],
+                answerIdx: 4,
+                answerText: "⑤ 자기자본이익률(ROE)",
+                exp: [
+                    "⑤ [O] 자기자본이익률(ROE)은 대표적인 수익성 평가 지표입니다.",
+                    "① [X] 부채비율은 재무 안전성을 측정하는 지표입니다.",
+                    "② [X] 당좌비율은 단기 유동성(지급능력) 지표입니다.",
+                    "③, ④ [X] 총자산회전율과 재고자산회전율은 자산의 효율성을 보는 활동성 지표입니다."
+                ]
+            },
+            {
+                id: 34, category: "재무·금융", qNo: "문제 34", title: "레버리지 효과",
+                passage: "",
+                question: "타인자본을 차입하여 지렛대 삼아 자기자본이익률(ROE)을 상승시키는 효과는?",
+                options: ["① 스놉 효과", "② 빅배스 효과", "③ 레버리지 효과", "④ 포트폴리오 효과", "⑤ 밴드왜건 효과"],
+                answerIdx: 2,
+                answerText: "③ 레버리지 효과",
+                exp: [
+                    "③ [O] 차입금을 지렛대 삼아 이익률을 증대시키는 것은 레버리지 효과(Leverage Effect)입니다.",
+                    "① [X] 스놉 효과는 남들이 사면 구매를 삼가는 배타적 소비 현상입니다.",
+                    "② [X] 빅배스는 부실을 한 회계연도에 집중 털어내는 회계 처리입니다.",
+                    "④ [X] 포트폴리오 효과는 분산투자로 위험을 줄이는 효과입니다.",
+                    "⑤ [X] 밴드왜건 효과는 유행을 편승해 따라 구매하는 소비 현상입니다."
+                ]
+            },
+            {
+                id: 40, category: "재무·금융", qNo: "문제 40", title: "기대수익률 계산",
+                passage: "",
+                question: "호황(확률 25%, 수익률 12%), 현상유지(확률 50%, 수익률 6%), 불황(확률 25%, 수익률 -8%)일 때 기대수익률은?",
+                options: ["① 4%", "② 6%", "③ 8%", "④ 10%", "⑤ 12%"],
+                answerIdx: 0,
+                answerText: "① 4%",
+                exp: [
+                    "① [O] 기대수익률 = (0.25 × 12%) + (0.50 × 6%) + (0.25 × -8%) = 3% + 3% - 2% = 4%",
+                    "②, ③, ④, ⑤ [X] 계산식 결과와 일치하지 않는 수치입니다."
+                ]
+            },
+            {
+                id: 41, category: "재무·금융", qNo: "문제 41", title: "WACC 계산",
+                passage: "",
+                question: "주가 2,000원 × 100만 주(자기자본 20억, 자본비용 12%), 차입금 60억(금리 5%), 법인세율 20%일 때 WACC는?",
+                options: ["① 연 2%", "② 연 4%", "③ 연 6%", "④ 연 8%", "⑤ 연 10%"],
+                answerIdx: 2,
+                answerText: "③ 연 6%",
+                exp: [
+                    "③ [O] 총자본 80억 중 자기자본 비중 25%, 부채 비중 75%입니다.\n- 세후 타인자본비용 = 5% × (1 - 0.20) = 4%\n- WACC = (12% × 0.25) + (4% × 0.75) = 3% + 3% = 6%",
+                    "①, ②, ④, ⑤ [X] 계산식 결과와 일치하지 않는 수치입니다."
+                ]
+            },
+            {
+                id: 50, category: "재무·금융", qNo: "문제 50", title: "NPV 비교",
+                passage: "할인율 연 10%\n- A: 현재 -1,000 / 1년 뒤 +2,000\n- B: 현재 +2,000 / 1년 뒤 -1,000\n- C: 현재 +500 / 1년 뒤 +500",
+                question: "아래 투자안의 순현재가치(NPV) 크기 순서는?",
+                options: ["① A > B > C", "② A > C > B", "③ B > A > C", "④ B > C > A", "⑤ C > B > A"],
+                answerIdx: 3,
+                answerText: "④ B > C > A",
+                exp: [
+                    "④ [O] NPV 계산값:\n- NPV_A = -1,000 + (2,000 / 1.1) = 818.18\n- NPV_B = 2,000 + (-1,000 / 1.1) = 1,090.91\n- NPV_C = 500 + (500 / 1.1) = 954.55\n따라서 B(1090.9) > C(954.5) > A(818.1) 순서입니다.",
+                    "①, ②, ③, ⑤ [X] 계산 결과와 크기 순서가 일치하지 않습니다."
+                ]
+            }
+        ];
+
+        let currentCat = "전체";
+        let userAnswers = {};
+        let allExpanded = false;
+
+        function renderQuiz() {
+            const container = document.getElementById("quiz-container");
+            container.innerHTML = "";
+
+            const filtered = quizData.filter(q => {
+                const catMatch = currentCat === "전체" || q.category === currentCat;
+                const keyword = document.getElementById("search").value.toLowerCase();
+                const textMatch = q.question.toLowerCase().includes(keyword) || 
+                                  q.title.toLowerCase().includes(keyword) ||
+                                  q.qNo.toLowerCase().includes(keyword);
+                return catMatch && textMatch;
+            });
+
+            filtered.forEach((q, idx) => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.id = `q-${q.id}`;
+
+                let passageHtml = q.passage ? `<div class="passage">${q.passage}</div>` : "";
+                
+                let optionsHtml = q.options.map((opt, oIdx) => {
+                    let userStateClass = "";
+                    if (userAnswers[q.id] !== undefined) {
+                        if (oIdx === q.answerIdx) {
+                            userStateClass = "selected-correct";
+                        } else if (userAnswers[q.id] === oIdx) {
+                            userStateClass = "selected-wrong";
+                        }
+                    }
+                    return `<li class="option-item ${userStateClass}" onclick="selectOption(${q.id}, ${oIdx})">${opt}</li>`;
+                }).join("");
+
+                let expHtml = q.exp.map(e => `<div class="exp-item">${e}</div>`).join("");
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="badge">${q.category}</span>
+                        <span class="q-number">${q.qNo}</span>
+                    </div>
+                    <div class="q-title">${q.title}</div>
+                    ${passageHtml}
+                    <div style="margin-bottom:12px; font-size:0.95rem; font-weight:600;">${q.question}</div>
+                    <ul class="options-list">${optionsHtml}</ul>
+                    <button class="btn-toggle-exp" onclick="toggleExp(${q.id})">정답 및 상세해설 보기</button>
+                    <div class="explanation-box ${allExpanded ? 'show' : ''}" id="exp-${q.id}">
+                        <div class="exp-answer">정답: ${q.answerText}</div>
+                        ${expHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            updateStats();
+        }
+
+        function selectOption(qId, oIdx) {
+            userAnswers[qId] = oIdx;
+            // Auto show explanation on answer selection
+            document.getElementById(`exp-${qId}`).classList.add('show');
+            renderQuiz();
+        }
+
+        function toggleExp(qId) {
+            const expBox = document.getElementById(`exp-${qId}`);
+            expBox.classList.toggle("show");
+        }
+
+        function toggleAllExplanations() {
+            allExpanded = !allExpanded;
+            renderQuiz();
+        }
+
+        function filterCategory(cat, btn) {
+            currentCat = cat;
+            document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            renderQuiz();
+        }
+
+        function searchQuestions() {
+            renderQuiz();
+        }
+
+        function updateStats() {
+            const solvedKeys = Object.keys(userAnswers);
+            const total = quizData.length;
+            const solved = solvedKeys.length;
+            
+            let correct = 0;
+            solvedKeys.forEach(id => {
+                const q = quizData.find(item => item.id == id);
+                if (q && userAnswers[id] === q.answerIdx) {
+                    correct++;
+                }
+            });
+
+            const rate = solved > 0 ? Math.round((correct / solved) * 100) : 0;
+            document.getElementById("solved-count").innerText = `풀이한 문제: ${solved} / ${total}`;
+            document.getElementById("score-count").innerText = `정답률: ${rate}% (${correct}개 정답)`;
+        }
+
+        // Initialize
+        renderQuiz();
+    </script>
+</body>
+</html>
